@@ -42,6 +42,9 @@ function getOptimizedRoutes ({
     return Promise.resolve(memoizeFn(getOptimizedRoute)).then(f => f(args))
   })
   return Promise.all(routePromises).then(function (routeWaypointPairs) {
+    routeWaypointPairs = routeWaypointPairs.reduce(function (a, b) {
+      return a.concat(b)
+    }, [])
     // filter out routes that make a baby food stop first
     // TODO what if they all get filtered out? (see test/index.js TODO)
     return routeWaypointPairs.filter(({waypoints}) => !babyFoodStops.includes(waypoints[0]))
@@ -53,13 +56,15 @@ function getOptimizedRoute ({origin, destination, waypoints, googleMapsClient}) 
     origin,
     destination,
     waypoints: 'optimize:true|' + waypoints.join('|'),
+    alternatives: true,
     mode: 'bicycling'
   }).asPromise().then(function (response) {
-    const route = response.json.routes[0]
-    return {
-      route,
-      waypoints: reorderWaypoints({route, waypoints})
-    }
+    return response.json.routes.map(function (route) {
+      return {
+        route,
+        waypoints: reorderWaypoints({route, waypoints})
+      }
+    })
   })
 }
 
