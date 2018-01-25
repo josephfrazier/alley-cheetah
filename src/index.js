@@ -54,7 +54,7 @@ function getOptimizedRoutes ({
 
   const routePromises = waypointsSets.map(function (waypoints) {
     waypoints = waypoints.sort()
-    const args = {origin, destination, waypoints, googleMapsClient}
+    const args = {origin, destination, waypoints, googleMapsClient, mode}
     return Promise.resolve(memoizeFn(getOptimizedRoute)).then(f => f(args))
   })
   return Promise.all(routePromises).then(function (routeWaypointPairs) {
