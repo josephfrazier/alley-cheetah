@@ -38,19 +38,7 @@ function getOptimizedRoutes ({
     memoizeFn = (f => f)
   }) {
   const waypointsSets = enumerateWaypointSets(waypointGrid, waypointOptions).map(waypoints => waypoints.concat(babyFoodStops))
-  // 50 is the max free rate limit, according to
-  // https://developers.google.com/maps/documentation/directions/usage-limits
-  // https://googlemaps.github.io/google-maps-services-js/docs/module-@google_maps.html#.createClient
-  const googleMapsClient = googleMaps.createClient({
-    key,
-    Promise,
-    rate: {
-      limit: 50
-    },
-    makeUrlRequest: function (url, onSuccess, onError) {
-      return makeUrlRequest(corsProxy + url, onSuccess, onError)
-    }
-  })
+  const googleMapsClient = createGoogleMapsClient({key, corsProxy})
 
   const routePromises = waypointsSets.map(function (waypoints) {
     waypoints = waypoints.sort()
@@ -77,6 +65,24 @@ function getOptimizedRoute ({origin, destination, waypoints, googleMapsClient, m
       waypoints: reorderWaypoints({route, waypoints})
     }
   })
+}
+
+function createGoogleMapsClient ({key, corsProxy}) {
+  // 50 is the max free rate limit, according to
+  // https://developers.google.com/maps/documentation/directions/usage-limits
+  // https://googlemaps.github.io/google-maps-services-js/docs/module-@google_maps.html#.createClient
+  const googleMapsClient = googleMaps.createClient({
+    key,
+    Promise,
+    rate: {
+      limit: 50
+    },
+    makeUrlRequest: function (url, onSuccess, onError) {
+      return makeUrlRequest(corsProxy + url, onSuccess, onError)
+    }
+  })
+
+  return googleMapsClient
 }
 
 function sortRoutesBy ({routeWaypointPairs, routeSortKey}) {
