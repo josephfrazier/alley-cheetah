@@ -5,17 +5,41 @@ const makeUrlRequest = require('@google/maps/lib/internal/make-url-request.js')
 const sortOn = require('sort-on')
 
 const enumerateWaypointSets = require('./rook.js')
+const chooseEndpoints = require('./choose.js')
 
 const DEFAULT_MODE = 'bicycling'
 
 module.exports = getBestWaypoints
 module.exports.getOptimizedRoutes = getOptimizedRoutes
 module.exports.getOptimizedRoute = getOptimizedRoute
+module.exports.getOptimizedRouteAnyEndpoints = getOptimizedRouteAnyEndpoints
 module.exports.reorderWaypoints = reorderWaypoints
 module.exports.sortRoutesBy = sortRoutesBy
 module.exports.getMapsLink = getMapsLink
 module.exports.getLegsTotal = getLegsTotal
 module.exports.testData = require('./testData')
+
+function getOptimizedRouteAnyEndpoints ({
+  origin,
+  destination,
+  waypoints,
+  key = process.env.GOOGLE_MAPS_API_KEY,
+  corsProxy = '',
+  mode = DEFAULT_MODE,
+  memoizeFn = (f => f),
+  routeSortKey = 'distance' // TODO dedupe with getBestWaypoints routeSortKey default
+}) {
+  const googleMapsClient = createGoogleMapsClient({key, corsProxy})
+  const argsObjects = chooseEndpoints({origin, destination, waypoints})
+  const routePromises = argsObjects.map(({origin, destination, waypoints}) => {
+    waypoints = waypoints.sort()
+    const args = {origin, destination, waypoints, googleMapsClient, mode}
+    return Promise.resolve(memoizeFn(getOptimizedRoute)).then(f => f(args))
+  })
+  return Promise.all(routePromises).then(function (routeWaypointPairs) {
+    return sortRoutesBy({routeWaypointPairs, routeSortKey})[0]
+  })
+}
 
 // args is an object that looks like the arguments for `getOptimizedRoutes`
 // It can also have a `routeSortKey` property ('distance' or 'duration')

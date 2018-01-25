@@ -1,5 +1,6 @@
 const origin = '539 W 34th St, New York, NY 10001'
 const destination = `440 Grand Street, New York, NY, United States`
+const farawaypoint = 'queens, nyc'
 
 // https://farm3.static.flickr.com/2778/4134507221_d0c9ec1b7c_o.jpg
 const grid = [
@@ -37,6 +38,7 @@ const babyFoodStops = [
 module.exports = {
   origin,
   destination,
+  farawaypoint,
   grid,
   babyFoodStops
 }

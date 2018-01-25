@@ -26,6 +26,7 @@
   "homepage": "https://github.com/josephfrazier/alley-cheetah#readme",
   "dependencies": {
     "@google/maps": "^0.3.0",
+    "ml-combinations": "^1.0.1",
     "sort-on": "^1.3.0"
   },
   "devDependencies": {
