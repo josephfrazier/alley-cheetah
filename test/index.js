@@ -9,9 +9,23 @@ const memoizeFn = memoize.fn
 const {
   origin,
   destination,
+  farawaypoint,
   grid,
   babyFoodStops
 } = getBestWaypoints.testData
+
+test('getOptimizedRouteAnyEndpoints', function (t) {
+  t.plan(1)
+
+  getBestWaypoints.getOptimizedRouteAnyEndpoints({
+    memoizeFn,
+    origin,
+    destination,
+    waypoints: [farawaypoint]
+  }).then(function ({route, waypoints}) {
+    t.notEqual(waypoints, [farawaypoint])
+  })
+})
 
 test('Cranksgiving 11 NYC (no baby food)', function (t) {
   t.plan(2)
